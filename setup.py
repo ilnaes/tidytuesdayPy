@@ -25,4 +25,7 @@ setup(
         "pandas >= 1.0",
         "PyGithub >= 1.54",
     ],
+    extra_require=[
+        "twine >= 3.0",
+    ],
 )
