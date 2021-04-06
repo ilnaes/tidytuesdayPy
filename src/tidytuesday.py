@@ -55,7 +55,11 @@ class TidyTuesday:
         self.readme = b64decode(readme).decode("utf-8")
 
     def download_files(self):
-        for file in self._file_names:
-            print("Downloading " + file)
+        total = len(self._file_names)
+        print(f"\033[1m--- There are {total} files available ---\033[0m")
+        print("\033[1m--- Starting download ---\033[0m\n")
+        for i, file in enumerate(self._file_names):
+            print(f"\tDownloading file {i+1} of {total}: {file}")
             content = self.gh.get_git_blob(self.sha[file]).content
             setattr(self, file.split(".")[0], pd.read_csv(BytesIO(b64decode(content))))
+        print("\n\033[1m--- Download complete ---\033[0m")
