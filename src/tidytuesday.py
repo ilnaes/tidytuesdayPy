@@ -16,12 +16,12 @@ PARSERS = {
 
 
 def get_pat():
-    if os.environ["GITHUB_PAT"]:
-        return os.environ["GITHUB_PAT"]
-    if os.environ["GITHUB_TOKEN"]:
+    if "GITHUB_TOKEN" in os.environ:
         return os.environ["GITHUB_TOKEN"]
+    if "GITHUB_PAT" in os.environ:
+        return os.environ["GITHUB_PAT"]
 
-    return ""
+    return None
 
 
 class TidyTuesday:
