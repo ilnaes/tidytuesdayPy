@@ -10,10 +10,10 @@ from tidytuesday import TidyTuesday
 tt = TidyTuesday("2021-04-06")
 ```
 
-You can then access each data set as an attribute.  Hyphens (if present) are converted to underscores.
+You can then access each data set from the data field.
 
 ```python
-df = tt.forest
+df = tt.data["forest"]
 ```
 
 You can also access the readme.
@@ -24,5 +24,5 @@ print(tt.readme)
 
 ## TODO
 
-- Rate limit checks
-- Implement parsers for zip and rds formats
+- Implement parsers for rds formats
+- Documentation

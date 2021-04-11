@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="tidytuesday",
-    version="0.0.1",
+    version="0.0.4",
     description="Download #TidyTuesday data",
     py_modules=["tidytuesday"],
     package_dir={"": "src"},
