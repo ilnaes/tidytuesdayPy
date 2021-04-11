@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="tidytuesday",
-    version="0.0.4",
+    version="0.0.5",
     description="Download #TidyTuesday data",
     py_modules=["tidytuesday"],
     package_dir={"": "src"},
@@ -21,11 +21,6 @@ setup(
     ],
     author="Sean Li",
     author_email="seanli646@gmail.com",
-    install_requires=[
-        "pandas >= 0.24.0",
-        "PyGithub >= 1.54",
-    ],
-    extra_require=[
-        "twine >= 3.0",
-    ],
+    install_requires=["pandas >= 0.24.0", "PyGithub >= 1.54",],
+    extra_require=["twine >= 3.0",],
 )
