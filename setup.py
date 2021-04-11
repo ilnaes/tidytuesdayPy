@@ -22,7 +22,7 @@ setup(
     author="Sean Li",
     author_email="seanli646@gmail.com",
     install_requires=[
-        "pandas >= 1.0",
+        "pandas >= 0.24.0",
         "PyGithub >= 1.54",
     ],
     extra_require=[
