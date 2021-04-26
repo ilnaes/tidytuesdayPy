@@ -10,7 +10,9 @@ from tidytuesday import TidyTuesday
 tt = TidyTuesday("2021-04-06")
 ```
 
-You can then access each data set from the data field.
+If you do not provide a date (*i.e.* just `TidyTuesday()`), then the latest TidyTuesday will be used.  Note that this will not be good for reproducability in the future!
+
+You can then access each data set from the data field using the filename, dropping the extension.
 
 ```python
 df = tt.data["forest"]

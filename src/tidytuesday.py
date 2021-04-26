@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 from datetime import datetime
 import pandas as pd
 from base64 import b64decode
@@ -19,6 +19,10 @@ PARSERS["zip"] = functools.partial(parse_zip, parsers=PARSERS)
 
 
 def get_pat():
+    """
+    Reads the person access token for Github from environment, if it exists
+
+    """
     if "GITHUB_TOKEN" in os.environ and os.environ["GITHUB_TOKEN"]:
         return os.environ["GITHUB_TOKEN"]
     if "GITHUB_PAT" in os.environ and os.environ["GITHUB_PAT"]:
@@ -29,11 +33,19 @@ def get_pat():
 
 class TidyTuesday:
     data: Dict[str, pd.DataFrame] = {}
-    readme: str = ""
+    readme: Optional[str] = ""
 
-    def __init__(self, date, auth=get_pat()):
+    def __init__(self, date=None, auth=get_pat()):
+        """
+        Creates a new thing
+
+        :param str date: date of tidytuesday dataset in "YYYY-MM-DD" form
+        :param str auth: Github token if exists
+        """
         # convert improperly formatted dates like 2018-5-21 into 2018-05-21
-        self.date = datetime.strptime(date, "%Y-%m-%d").date().strftime("%Y-%m-%d")
+        self.date = (
+            datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d") if date else None
+        )
 
         self.gh = Github(auth)
         self.repo = self.gh.get_repo(REPO)
@@ -43,6 +55,11 @@ class TidyTuesday:
             self.download_files()
 
     def get_blob(self, sha):
+        """
+        Downloads the blob
+
+        :param str sha: SHA of file to download
+        """
         return b64decode(self.repo.get_git_blob(sha).content)
 
     def get_rate_limit(self, n=10):
@@ -64,6 +81,11 @@ class TidyTuesday:
         static_sha = {x.path: x.sha for x in tree}
 
         ttdt = pd.read_csv(BytesIO(self.get_blob(static_sha["tt_data_type.csv"])))
+
+        if not self.date:
+            # get latest
+            self.date = ttdt.loc[0, "Date"]
+
         file_info = ttdt.loc[
             ttdt["Date"] == self.date, ["data_files", "data_type", "delim"]
         ]
