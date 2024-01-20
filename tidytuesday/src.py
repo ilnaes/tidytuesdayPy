@@ -6,7 +6,7 @@ from io import BytesIO
 from github import Github
 import functools
 import os
-from parse_zip import parse_zip
+from .parse_zip import parse_zip
 
 
 REPO = "rfordatascience/tidytuesday"
