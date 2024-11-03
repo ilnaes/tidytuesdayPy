@@ -1,21 +1,16 @@
-from typing import Dict, Optional
-from datetime import datetime
-import pandas as pd
-from base64 import b64decode
-from io import BytesIO
-from github import Github
 import functools
+import inspect
 import os
+from base64 import b64decode
+from datetime import datetime
+from io import BytesIO
+
+import pandas as pd
+from github import Github
+
 from .parse_zip import parse_zip
 
-
 REPO = "rfordatascience/tidytuesday"
-PARSERS = {
-    "csv": pd.read_csv,
-    "xlsx": pd.read_excel,
-    "tsv": functools.partial(pd.read_csv, delimiter="\t"),
-}
-PARSERS["zip"] = functools.partial(parse_zip, parsers=PARSERS)
 
 
 def get_pat():
@@ -32,10 +27,10 @@ def get_pat():
 
 
 class TidyTuesday:
-    data: Dict[str, pd.DataFrame] = {}
-    readme: Optional[str] = ""
+    # data: Dict[str, pd.DataFrame] = {}
+    # readme: Optional[str] = ""
 
-    def __init__(self, date=None, auth=get_pat()):
+    def __init__(self, date=None, mod=pd, auth=get_pat(), kwargs=None):
         """
         Creates a new thing
 
@@ -43,9 +38,11 @@ class TidyTuesday:
         :param str auth: Github token if exists
         """
         # convert improperly formatted dates like 2018-5-21 into 2018-05-21
-        self.date = (
-            datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d") if date else None
-        )
+        if date:
+            self.date = datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d")
+        self.mod = mod
+        self.data = {}
+        self.kwargs = kwargs
 
         self.gh = Github(auth)
         self.repo = self.gh.get_repo(REPO)
@@ -121,13 +118,28 @@ class TidyTuesday:
 
         print("\033[1m--- Starting download ---\033[0m\n")
 
+        PARSERS = {
+            "csv": self.mod.read_csv,
+            "tsv": self.mod.read_csv,
+            "xlsx": self.mod.read_excel,
+        }
+        PARSERS["zip"] = functools.partial(parse_zip, parsers=PARSERS)
+
         for i, (file, (dtype, delim)) in enumerate(self._file_info.items()):
             print(f"\tDownloading file {i+1} of {total}: {file}")
 
             content = self.get_blob(sha[file])
             parser = PARSERS[dtype]
-            if str(delim) != "nan":
-                parser = functools.partial(parser, delimiter=delim)
+            params = inspect.signature(parser).parameters
+
+            if "sep" in params:
+                if str(delim) != "nan":
+                    parser = functools.partial(parser, sep=delim)
+                elif dtype == "tsv":
+                    parser = functools.partial(parser, sep="\t")
+
+            if self.kwargs:
+                parser = functools.partial(parser, **self.kwargs)
 
             if dtype == "zip":
                 self.data.update(parser(BytesIO(content)))
